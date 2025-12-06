@@ -246,6 +246,7 @@ import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import math
 ```
 
 따라서 다음 패키지가 필요합니다.
@@ -364,9 +365,10 @@ run_interview_session(
   - Eye-contact ratio
   - Eye-contact score
   - z-eye score
+  - 상위 n% eye contact
   - 평균 Smile intensity
+  - 상위 n% smile
   - Nod Count
-  - Pitch 값
 - 종료:
   - `q` 키를 누르면 세션 종료 후 요약 통계 출력
 
