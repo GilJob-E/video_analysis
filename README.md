@@ -537,7 +537,10 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 1. **환경 민감도**
    - 카메라 위치, 해상도, 조명, 화면 크기에 따라 캘리브레이션/임계값이 달라질 수 있습니다.
 2. **파라미터 해석**
-   - `DOWN_TH = -0.10` `UP_TH   = -0.05`는 직접 테스트한 결과이고, smile의 z-score를 계산할 때 사용 한 값은 kaggle의 First Impressions V2 (CVPR'17) - Training 데이터셋을 일부 사용
+   - `DOWN_TH = -0.10` `UP_TH   = -0.05`는 직접 테스트한 결과이고,
+   - smile의 z-score를 계산할 때 사용 한 값은 kaggle의 First Impressions V2 (CVPR'17) - Training 데이터셋을 일부 사용
+3. **의미가 있는가**
+   - 대답만을 하는 영상을 입력으로 받으면 smile, nod가 대답과 동시에 이루어질 수 있는지?
 
 
 
