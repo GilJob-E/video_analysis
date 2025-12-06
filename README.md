@@ -4,7 +4,7 @@
 웹캠 영상에서 **시선(아이컨택), 미소, 끄덕임, 앞으로 숙이기** 등의 비언어적 특성을 추출하고  
 면접 상황에서의 **시선 비율 / 표정 / 고개 끄덕임**을 정량적으로 분석하는 Python 스크립트입니다.
 
----
+
 
 ## 기반 아이디어
 
@@ -20,7 +20,7 @@
 본 스크립트는 위 아이디어 및 통계를 바탕으로,  
 **“화면 중앙 한 점 캘리브레이션 → 프레임 단위 시선 기하 특성 계산 → 아이컨택 여부 및 비율 산출”** 파이프라인을 제공합니다.
 
----
+
 
 ## 설치
 
@@ -43,7 +43,7 @@ project/
 
 `merge.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
 
----
+
 
 ## 빠른 시작
 
@@ -72,7 +72,7 @@ python merge.py
    - **`q`** 키를 누르면 세션이 종료되고,  
      터미널에 전체 요약이 출력됩니다.
 
----
+
 
 ## Ye et al. 기반 Eye-contact 로직 흐름
 
@@ -112,7 +112,7 @@ Ye et al.의 논문은 **얼굴 랜드마크만으로 저비용 시선 추정을
 우리 구현의 `eye_contact_from_features_ye` 함수는 위 흐름을 그대로 따라가되,  
 Ye et al.의 분류기를 대신해 **편차 기반 점수(final_score)** 를 계산하여 연속적인 0~1 스코어로 사용합니다.
 
----
+
 
 ## 추출 특성
 
@@ -131,7 +131,7 @@ Ye et al.의 분류기를 대신해 **편차 기반 점수(final_score)** 를 �
 > 위 값은 **모의 면접 및 VR 기반 시선 연구(Acarturk et al., 2021; Esmer, 2022)**에서 보고된  
 > 평균적인 시선 유지/회피 비율 분포를 참고하여 설정한 규범값입니다.
 
----
+
 
 ### 전체 추출 특성
 
@@ -153,7 +153,7 @@ Ye et al.의 분류기를 대신해 **편차 기반 점수(final_score)** 를 �
 캘리브레이션 단계에서 이 벡터들의 **평균/표준편차**를 저장하고,  
 인터뷰 세션에서는 `(feat - mean) / std` 를 이용해 중앙에서의 편차를 계산합니다.
 
----
+
 
 #### 2) 아이컨택 지표 (프레임 단위 구현)
 
@@ -188,7 +188,7 @@ final_score = 0.7 * score_eye + 0.3 * score_head
 | `dev_eye`   | 눈동자 편차 (중앙에서 얼마나 벗어났는지)  |
 | `dev_head`  | 머리 회전 편차                            |
 
----
+
 
 #### 3) 표정 / 미소
 
@@ -204,7 +204,7 @@ final_score = 0.7 * score_eye + 0.3 * score_head
 - `avg_smile_0_1` : 전체 face frame에 대한 평균 미소 점수
 - `avg_smile_0_100 = avg_smile_0_1 * 100.0`
 
----
+
 
 #### 4) 머리 움직임 (끄덕임 / 앞으로 숙이기)
 
@@ -225,7 +225,6 @@ MAX_NOD_FRAMES = 240  # 약 1초(30fps 기준)
   - 코의 z 값이 카메라 쪽으로 일정 거리 이상 가까워졌을 때 True  
   - (현재 스크립트에서는 통계 출력보다 이벤트 감지에 중점)
 
----
 
 ## API 사용법 (모듈 import 활용)
 
@@ -298,7 +297,7 @@ cap.release()
 cv2.destroyAllWindows()
 ```
 
----
+
 
 ## 정규화 (Normalization)
 
@@ -338,7 +337,7 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 - `z_eye ≈ 0` : 평균적인 수준  
 - `z_eye < 0` : 평균보다 적게 카메라를 봄  
 
----
+
 
 ## 프로젝트 구조
 
@@ -356,7 +355,7 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 - `scoring/`: z-score, 규범(norm) 관리 모듈
 - `docs/`: FEATURE_STATISTICS.md, 사용 매뉴얼 등
 
----
+
 
 ## 한계점
 
@@ -371,7 +370,7 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
    - 현재는 영상(얼굴) 기반 피처만 다루며,  
      음성/텍스트(예: ko-liwc)와의 멀티모달 결합은 포함되지 않았습니다.
 
----
+
 
 ## 참고 문헌
 
