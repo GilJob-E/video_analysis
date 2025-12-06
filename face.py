@@ -4,7 +4,7 @@ import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-
+import math
 
 # ============================================================
 # 1. 모델 파일 경로
@@ -445,21 +445,29 @@ def run_interview_session(detector, mean_feat, std_feat,
     cap.release()
     cv2.destroyWindow("Interview (Eye Contact)")
 
+    SMILE_MEAN = 32.93
+    SMILE_STD  = 17.72 
+    
     if total_face_frames > 0:
         eye_ratio = eye_contact_frames / total_face_frames
         z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
+        percent_eye = 0.5 * (1.0 + math.erf(z_eye / math.sqrt(2))) * 100.0
 
         avg_smile_0_1 = smile_sum / total_face_frames
         avg_smile_0_100 = avg_smile_0_1 * 100.0
+        z_smile = (avg_smile_0_1 - SMILE_MEAN) / SMILE_STD
+        percent_smile = 0.5 * (1.0 + math.erf(z_smile / math.sqrt(2))) * 100.0
 
         print("\n=== INTERVIEW SUMMARY ===")
         print(f"Total face frames: {total_face_frames}")
         print(f"Eye-contact frames: {eye_contact_frames}")
         print(f"Eye-contact ratio: {eye_ratio*100:.1f}%")
-        print(f"z-eye (mu=0.70, sigma=0.15): {z_eye:.2f}")
-        print(f"Mean SmileIntensity: {avg_smile_0_100:.2f} / 100")
-        print(f"z-SmileIntensity: {(avg_smile_0_100 - 32.93) / 17.72 :.2f}")
+        print(f"z-eye (mu=0.70, sigma=0.15): {z_eye:.2f} "
+            f"(상위 {percent_eye:.1f}%)")
+        print(f"Mean SmileIntensity: {avg_smile_0_100:.2f} / 100 "
+            f"(z-smile={z_smile:.2f}, 상위 {percent_smile:.1f}%)")
         print(f"Nod Count: {nod_count}")
+        
     else:
         print("세션 동안 얼굴이 한 번도 검출되지 않았습니다.")
 
