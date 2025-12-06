@@ -349,26 +349,14 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 └── face_landmarker.task   # MediaPipe FaceLandmarker 모델
 ```
 
-향후 확장 아이디어:
-
-- `features/`: 프레임 단위 피처 추출 모듈 분리
-- `scoring/`: z-score, 규범(norm) 관리 모듈
-- `docs/`: FEATURE_STATISTICS.md, 사용 매뉴얼 등
-
 
 
 ## 한계점
 
-1. **단일 얼굴 / 단일 웹캠 가정**
-   - `num_faces=1`로 설정되어 있어, 한 명의 응시자만 추적합니다.
-2. **환경 민감도**
+1. **환경 민감도**
    - 카메라 위치, 해상도, 조명, 화면 크기에 따라 캘리브레이션/임계값이 달라질 수 있습니다.
-3. **정량 스코어 해석**
-   - `z_eye`, `avg_smile_0_100`, `nod_count`는 정량 지표일 뿐,  
-     실제 면접 평가 점수와의 매핑은 별도 연구/튜닝이 필요합니다.
-4. **오디오/텍스트 미포함**
-   - 현재는 영상(얼굴) 기반 피처만 다루며,  
-     음성/텍스트(예: ko-liwc)와의 멀티모달 결합은 포함되지 않았습니다.
+2. **파라미터 해석**
+   - `DOWN_TH = -0.10` `UP_TH   = -0.05`는 직접 테스트한 결과이고, smile의 z-score를 계산할 때 사용 한 값은 kaggle의 First Impressions V2 (CVPR'17) - Training 데이터셋을 일부 사용
 
 
 
