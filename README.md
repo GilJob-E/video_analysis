@@ -37,18 +37,18 @@ pip install opencv-python mediapipe numpy
 
 ```text
 project/
-├── merge.py               # 이 README가 설명하는 스크립트
+├── vision.py               # 이 README가 설명하는 스크립트
 └── face_landmarker.task   # MediaPipe FaceLandmarker 모델 파일
 ```
 
-`merge.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
+`vision.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
 
 
 
 ## 빠른 시작
 
 ```bash
-python merge.py
+python vision.py
 ```
 
 실행하면 두 단계로 진행됩니다.
@@ -232,7 +232,7 @@ MAX_NOD_FRAMES = 240  # 약 1초(30fps 기준)
 
 ```python
 import cv2
-from merge import (
+from vision import (
     build_face_landmarker,
     run_center_calibration,
     run_interview_session,
@@ -264,7 +264,7 @@ run_interview_session(
 ```python
 import cv2
 import numpy as np
-from merge import (
+from vision import (
     build_face_landmarker,
     detect_landmarks,
     compute_gaze_features_ye,
@@ -345,7 +345,7 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 
 ```text
 .
-├── merge.py               # 메인 스크립트 (캘리브레이션 + 인터뷰 세션)
+├── vision.py               # 메인 스크립트 (캘리브레이션 + 인터뷰 세션)
 └── face_landmarker.task   # MediaPipe FaceLandmarker 모델
 ```
 
