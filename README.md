@@ -230,50 +230,157 @@ MAX_NOD_FRAMES = 240  # 약 1초(30fps 기준)
 
 스크립트를 단순 실행하는 것 외에, 모듈로 import해서도 사용할 수 있습니다.
 
-```python
-import cv2
-from vision import (
-    build_face_landmarker,
-    run_center_calibration,
-    run_interview_session,
-    compute_gaze_features_ye,
-    eye_contact_from_features_ye,
-)
-```
+## 1. Dependencies
 
-### 1) 전체 파이프라인 직접 구성
+### 1.1 Python Version
 
-```python
-detector = build_face_landmarker()
+- Python **3.9 이상** 권장
 
-# 1) 중앙 한 점 캘리브레이션
-mean_feat, std_feat = run_center_calibration(detector, num_samples=120)
+### 1.2 Required Packages
 
-# 2) 인터뷰 세션 (UI + 요약 출력까지 포함)
-run_interview_session(
-    detector,
-    mean_feat,
-    std_feat,
-    thr_h=2.0,  # 눈 편차 threshold
-    thr_v=4.0,  # 머리 회전 threshold
-)
-```
-
-### 2) 프레임 단위 커스텀 처리
+`face.py`에서 사용하는 외부 패키지:
 
 ```python
 import cv2
 import numpy as np
-from vision import (
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+```
+
+따라서 다음 패키지가 필요합니다.
+
+```bash
+pip install opencv-python mediapipe numpy
+```
+
+### 1.3 Model File
+
+- MediaPipe Face Landmarker 모델 파일:
+
+```text
+face_landmarker.task
+```
+
+- 파일 위치:
+  - `face.py`와 **같은 폴더**에 두어야 합니다.
+
+```python
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "face_landmarker.task")
+
+if not os.path.exists(model_path):
+    raise FileNotFoundError("'face_landmarker.task' 파일을 찾을 수 없습니다. 이 파일과 같은 폴더에 두세요.")
+```
+
+---
+
+## 2. Basic API Usage
+
+`face.py`는 크게 세 단계를 위한 API를 제공합니다.
+
+1. Face Landmarker 초기화
+2. 중앙 한 점 캘리브레이션
+3. 인터뷰 세션(아이컨택/미소/끄덕임 추적)
+
+### 2.1 모듈 임포트
+
+```python
+from face import (
     build_face_landmarker,
+    run_center_calibration,
+    run_interview_session,
     detect_landmarks,
     compute_gaze_features_ye,
     eye_contact_from_features_ye,
+    smile,
+    detect_nod,
+    detect_lean_forward,
+    head_pose_matrix,
+    matrix_to_euler,
+    get_blendshape_map
 )
+```
+
+> 실제 파일 이름이 `face.py`가 아니라면, 해당 파일명으로 변경해서 import 해야 합니다.
+
+---
+
+### 2.2 Face Landmarker 초기화
+
+```python
+detector = build_face_landmarker()
+```
+
+- MediaPipe `FaceLandmarker`를 **VIDEO 모드**로 생성합니다.
+- 옵션:
+  - `num_faces=1`
+  - `min_face_detection_confidence=0.5`
+  - `min_face_presence_confidence=0.5`
+  - `min_tracking_confidence=0.5`
+  - `output_face_blendshapes=True`
+  - `output_facial_transformation_matrixes=True`
+
+---
+
+### 2.3 중앙 한 점 캘리브레이션
+
+사용자가 화면 중앙의 점을 바라보도록 하고,  
+Ye 스타일 8D geometry feature의 평균/표준편차를 추정합니다.
+
+```python
+mean_feat, std_feat = run_center_calibration(detector, num_samples=120)
+```
+
+- `num_samples`:
+  - 수집할 프레임 수 (기본 120 ≈ 4초 @30fps)
+- 반환값:
+  - `mean_feat`: 8D feature 평균 (numpy array, shape `(8,)`)
+  - `std_feat` : 8D feature 표준편차 (numpy array, shape `(8,)`)
+
+---
+
+### 2.4 인터뷰 세션 실행
+
+캘리브레이션 결과(`mean_feat`, `std_feat`)를 사용해  
+실시간으로 아이컨택/미소/끄덕임을 추적합니다.
+
+```python
+run_interview_session(
+    detector,
+    mean_feat,
+    std_feat,
+    thr_h=2.0,  # 눈 관련 z-score threshold
+    thr_v=4.0,  # 머리 회전 z-score threshold
+)
+```
+
+- 웹캠을 열어 프레임 단위로:
+  - 얼굴 랜드마크, 블렌드셰이프, head pose 추출
+  - Ye 8D feature 계산 → 중앙 기준 z-score → eye-contact 판정
+  - Duchenne smile 스코어 계산
+  - pitch 이력으로 nod 감지
+- 화면 오버레이 정보:
+  - Eye-contact ratio
+  - Eye-contact score
+  - z-eye score
+  - 평균 Smile intensity
+  - Nod Count
+  - Pitch 값
+- 종료:
+  - `q` 키를 누르면 세션 종료 후 요약 통계 출력
+
+---
+
+### 2.5 프레임 단위 API 사용 예시
+
+#### 2.5.1 얼굴 탐지 + 랜드마크/표정/자세
+
+```python
+import cv2
+from face import build_face_landmarker, detect_landmarks
 
 detector = build_face_landmarker()
-mean_feat, std_feat = ...  # run_center_calibration 결과 사용
-
 cap = cv2.VideoCapture(0)
 
 while True:
@@ -281,14 +388,13 @@ while True:
     if not ret:
         break
 
-    lm, blend, pitch, yaw = detect_landmarks(detector, frame)
-    if lm is not None:
-        feat = compute_gaze_features_ye(lm)
-        is_contact, score, dev_eye, dev_head = eye_contact_from_features_ye(
-            feat, mean_feat, std_feat,
-            thr_eye=2.0, thr_head=4.0
-        )
-        # score / is_contact를 원하는 방식으로 로깅, 저장, 시각화 가능
+    landmarks, blendshapes, pitch, yaw = detect_landmarks(detector, frame)
+
+    if landmarks is not None:
+        # landmarks: MediaPipe face_landmarks
+        # blendshapes: 표정 블렌드셰이프
+        # pitch, yaw: 라디안 단위 머리 회전
+        pass
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
@@ -296,6 +402,81 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 ```
+
+---
+
+#### 2.5.2 8D Gaze Feature + Eye-contact 수동 계산
+
+```python
+import numpy as np
+from face import (
+    compute_gaze_features_ye,
+    eye_contact_from_features_ye,
+)
+
+# 캘리브레이션에서 얻은 mean_feat, std_feat
+mean_feat = ...
+std_feat = ...
+
+feat = compute_gaze_features_ye(landmarks)  # landmarks는 MediaPipe 결과
+
+is_contact, score, dev_eye, dev_head = eye_contact_from_features_ye(
+    feat,
+    mean_feat,
+    std_feat,
+    thr_eye=2.0,
+    thr_head=4.0,
+)
+
+print("Eye-contact:", is_contact, "score=", score)
+```
+
+---
+
+#### 2.5.3 Smile / Nod / Lean Forward 단독 사용
+
+```python
+from face import smile, detect_nod, detect_lean_forward
+
+# 1) Smile
+smile_score = smile(blendshapes)  # 0 ~ 1
+print("Smile intensity:", smile_score)
+
+# 2) Nod
+pitch_history = []
+pitch_history.append(pitch)  # 매 프레임 pitch 추가
+
+if detect_nod(pitch_history):
+    print("Detected nod!")
+
+# 3) Lean forward
+prev_nose_z = None
+cur_nose_z = nose_landmark.z  # 프레임마다 업데이트
+
+if detect_lean_forward(prev_nose_z, cur_nose_z, move_th=0.02):
+    print("Leaning forward detected!")
+prev_nose_z = cur_nose_z
+```
+
+---
+
+## 3. CLI Usage
+
+`face.py`를 직접 실행하면 다음 순서로 동작합니다.
+
+```bash
+python face.py
+```
+
+1. `build_face_landmarker()` 호출
+2. `run_center_calibration(detector, num_samples=120)` 실행
+3. `run_interview_session(detector, mean_feat, std_feat, thr_h=2.0, thr_v=1.5)` 실행
+
+웹캠 창 2개가 순서대로 뜨며,  
+- 첫 번째 창: **Center Calibration**
+- 두 번째 창: **Interview (Eye Contact)**  
+q 키로 각 단계 종료가 가능합니다.
+
 
 
 
