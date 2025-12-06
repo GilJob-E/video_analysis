@@ -37,18 +37,18 @@ pip install opencv-python mediapipe numpy
 
 ```text
 project/
-├── vision.py               # 이 README가 설명하는 스크립트
+├── face.py               # 이 README가 설명하는 스크립트
 └── face_landmarker.task   # MediaPipe FaceLandmarker 모델 파일
 ```
 
-`vision.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
+`face.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
 
 
 
 ## 빠른 시작
 
 ```bash
-python vision.py
+python face.py
 ```
 
 실행하면 두 단계로 진행됩니다.
@@ -526,7 +526,7 @@ z_eye = (eye_ratio - EYE_CONTACT_MEAN_RATIO) / EYE_CONTACT_STD_RATIO
 
 ```text
 .
-├── vision.py               # 메인 스크립트 (캘리브레이션 + 인터뷰 세션)
+├── face.py               # 메인 스크립트 (캘리브레이션 + 인터뷰 세션)
 └── face_landmarker.task   # MediaPipe FaceLandmarker 모델
 ```
 
