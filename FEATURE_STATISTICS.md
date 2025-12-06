@@ -4,8 +4,6 @@ Statistics and interpretation guide for **non-verbal interview features** extrac
 
 본 문서는 웹캠 기반 면접 분석 스크립트에서 사용되는 **시선/표정/움직임 피처 구조와 통계 기준**을 정리한 것입니다.
 
----
-
 ## 1. Dataset Overview
 
 현재 스크립트(`vision.py`)는 **실시간 웹캠 분석** 및 **단일 세션 요약**을 수행합니다.  
@@ -23,7 +21,6 @@ ko-liwc처럼 하나의 대형 인터뷰 말뭉치에서 모든 통계를 뽑은
 > - eye contact / nod: **문헌 기반 규범값만 존재, 자체 데이터셋 분포는 아직 없음**  
 > - smile: **약 1,040개의 유튜브 1인 화자 영상에서 추출한 분포이며, 면접 상황과는 다른 도메인**이므로 해석에 주의 필요
 
----
 
 ## 2. Target Session Features
 
