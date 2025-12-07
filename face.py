@@ -81,7 +81,7 @@ def smile(blendshapes):
     return float(score)
 
 
-# nod 감지에 사용할 pitch 임계값들 (예전 코드 유지)
+# nod 감지에 사용할 pitch 임계값들
 DOWN_TH = -0.10
 UP_TH   = -0.05
 MAX_NOD_FRAMES = 240  # 대략 1초 정도 (30fps 기준)
@@ -146,7 +146,7 @@ def compute_gaze_features_ye(landmarks):
 
     eps = 1e-6
 
-    # --- head rotations (RY, RX) : 논문 식 그대로 ---
+    # --- head rotations (RY, RX) ---
     RY = (P_lMCA[2] - P_rMCA[2]) / (P_lMCA[0] - P_rMCA[0] + eps)
     RX = (P_ME[2]   - P_BN[2])   / (P_ME[1]   - P_BN[1]   + eps)
 
@@ -445,7 +445,7 @@ def run_interview_session(detector, mean_feat, std_feat,
     cap.release()
     cv2.destroyWindow("Interview (Eye Contact)")
 
-    SMILE_MEAN = 32.93
+    SMILE_MEAN = 32.93 # 직접 측정한 값
     SMILE_STD  = 17.72 
     
     if total_face_frames > 0:

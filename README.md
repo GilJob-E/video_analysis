@@ -303,7 +303,6 @@ from face import (
 )
 ```
 
-> 실제 파일 이름이 `face.py`가 아니라면, 해당 파일명으로 변경해서 import 해야 합니다.
 
 ---
 
