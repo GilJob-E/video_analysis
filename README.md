@@ -43,6 +43,8 @@ project/
 
 `face.py`와 `face_landmarker.task`를 **같은 폴더**에 두어야 합니다.
 
+모델 다운로드 위치
+https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker/python?hl=ko#model
 
 
 ## 빠른 시작
